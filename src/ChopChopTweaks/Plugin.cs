@@ -5,6 +5,7 @@ using HarmonyLib;
 using Service.MinigameCrafting;
 using UnityEngine;
 using WorldObjects.Player;
+using WorldObjects.Useables;
 
 namespace ChopChopTweaks;
 
@@ -32,6 +33,9 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float> RunSpeedMultiplier;
 
     internal static ConfigEntry<bool> SkipCraftingMinigame;
+    internal static ConfigEntry<float> CraftOutputMultiplier;
+    internal static ConfigEntry<int> MaxCraftOutputPerItem;
+    internal static ConfigEntry<float> AutoCraftSpeedMultiplier;
 
     internal static ConfigEntry<float> MagnetRadius;
     internal static ConfigEntry<float> MagnetInterval;
@@ -89,6 +93,33 @@ public class Plugin : BaseUnityPlugin
             "Craft instantly when a recipe is picked at a minigame crafting station, instead of "
             + "playing the minigame. Ingredients are still required and consumed normally.");
 
+        CraftOutputMultiplier = Config.Bind(
+            "4. Crafting", "OutputMultiplier", 1.0f,
+            new ConfigDescription(
+                "Multiplies what every craft produces, by raising the stack size of the items it "
+                + "spawns rather than spawning more of them - so it costs nothing at runtime. "
+                + "Ingredient costs are unchanged, so this is also the recipe efficiency knob. "
+                + "Applies to automated crafters too, where it compounds unattended. Fractions are "
+                + "honoured: 1.5 gives 1 or 2 with the right long-run average. 1.0 is vanilla.",
+                new AcceptableValueRange<float>(0.1f, 50f)));
+
+        MaxCraftOutputPerItem = Config.Bind(
+            "4. Crafting", "MaxOutputPerItem", 200,
+            new ConfigDescription(
+                "Hard cap on the stack size a single craft output can be scaled to. Guards against "
+                + "a mistyped multiplier quietly producing an absurd stack.",
+                new AcceptableValueRange<int>(1, 10000)));
+
+        AutoCraftSpeedMultiplier = Config.Bind(
+            "4. Crafting", "AutoCraftSpeedMultiplier", 1.0f,
+            new ConfigDescription(
+                "Multiplies how fast automated crafters work through their craft timer. Composes "
+                + "with the game's own CraftSpeed upgrades rather than replacing them. Hand "
+                + "crafting is unaffected - it has no timer to speed up. Note the game crafts at "
+                + "most once per tick, so beyond roughly craftTime x tickrate this stops helping. "
+                + "1.0 is vanilla.",
+                new AcceptableValueRange<float>(0.1f, 50f)));
+
         MagnetRadius = Config.Bind(
             "5. Item magnet", "Radius", 0.0f,
             new ConfigDescription(
@@ -124,14 +155,18 @@ public class Plugin : BaseUnityPlugin
             $"Chop Chop Tweaks loaded. Axe x{AxeDamageMultiplier.Value}, "
             + $"income x{IncomeMultiplier.Value}, cost x{CostMultiplier.Value}, "
             + $"walk x{WalkSpeedMultiplier.Value}, run x{RunSpeedMultiplier.Value}, "
-            + $"skipMinigame={SkipCraftingMinigame.Value}, magnet={MagnetRadius.Value}m.");
+            + $"skipMinigame={SkipCraftingMinigame.Value}, "
+            + $"craftOutput x{CraftOutputMultiplier.Value}, "
+            + $"autoCraftSpeed x{AutoCraftSpeedMultiplier.Value}, "
+            + $"magnet={MagnetRadius.Value}m.");
     }
 
     /// <summary>
     /// Most patch targets are referenced through typed <c>nameof</c>, so the compiler catches a
-    /// renamed method. These two cannot be: <c>Move.Awake</c> is matched by string, and
-    /// <c>MinigameSkipPatch</c> reads the service's private <c>crafter</c> field by name. Check
-    /// them up front so a game update produces one clear line instead of a Harmony stack trace.
+    /// renamed method. These three cannot be: <c>Move.Awake</c> and <c>Crafter.SpawnRecipeItem</c>
+    /// are private and matched by string, and <c>MinigameSkipPatch</c> reads the service's private
+    /// <c>crafter</c> field by name. Check them up front so a game update produces one clear line
+    /// instead of a Harmony stack trace.
     /// </summary>
     private static void VerifyPatchTargets()
     {
@@ -144,6 +179,12 @@ public class Plugin : BaseUnityPlugin
         {
             Log.LogWarning(
                 "MinigameCraftingServiceImpl.crafter not found - minigame skip will not apply.");
+        }
+
+        if (AccessTools.Method(typeof(Crafter), "SpawnRecipeItem") == null)
+        {
+            Log.LogWarning(
+                "Crafter.SpawnRecipeItem not found - the craft output multiplier will not apply.");
         }
     }
 

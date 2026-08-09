@@ -108,10 +108,11 @@ public class Plugin : BaseUnityPlugin
         harmony = new Harmony(Guid);
         harmony.PatchAll(typeof(Plugin).Assembly);
 
-        // The magnet is a per-frame behaviour rather than a patch, so it needs a live GameObject.
-        var host = new GameObject("ChopChopTweaks.ItemMagnet");
+        // Per-frame behaviours rather than patches, so they need a live GameObject.
+        var host = new GameObject("ChopChopTweaks.Behaviours");
         host.transform.SetParent(gameObject.transform);
         host.AddComponent<ItemMagnet>();
+        host.AddComponent<CraftUIRestorer>();
 
         Log.LogInfo(
             $"Chop Chop Tweaks loaded. Axe x{AxeDamageMultiplier.Value}, "

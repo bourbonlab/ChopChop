@@ -1,0 +1,27 @@
+<Project>
+
+  <!--
+    Path to the Chop Chop Inc. installation. Override on the command line if your
+    Steam library lives somewhere else:
+      dotnet build -p:GameDir="/mnt/d/Steam/steamapps/common/ChopChopInc"
+    or set the CHOPCHOP_DIR environment variable.
+  -->
+  <PropertyGroup>
+    <GameDir Condition="'$(GameDir)' == '' AND '$(CHOPCHOP_DIR)' != ''">$(CHOPCHOP_DIR)</GameDir>
+    <GameDir Condition="'$(GameDir)' == ''">/mnt/e/Program Files/Steam/steamapps/common/ChopChopInc</GameDir>
+
+    <GameManagedDir>$(GameDir)/ChopChopInc_Data/Managed</GameManagedDir>
+    <BepInExCoreDir>$(MSBuildThisFileDirectory)tools/BepInEx_win_x64/BepInEx/core</BepInExCoreDir>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DebugType>portable</DebugType>
+    <!-- Unity/BepInEx assemblies are net35/net472; suppress the framework mismatch noise. -->
+    <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>
+  </PropertyGroup>
+
+</Project>

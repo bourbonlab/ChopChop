@@ -1,0 +1,11 @@
+bin/
+obj/
+
+# Decompiled game code - derived from copyrighted game assemblies, kept local only.
+decompiled/
+
+# Downloaded third-party tooling (BepInEx redistributable).
+tools/
+
+# Build output staged for deployment.
+dist/

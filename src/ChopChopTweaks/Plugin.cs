@@ -64,10 +64,15 @@ public class Plugin : BaseUnityPlugin
                 + "free. 1.0 is vanilla.",
                 new AcceptableValueRange<float>(0f, 10f)));
 
+        // Unlike every other setting here, the two speeds are read once when the player's Move
+        // component wakes rather than on each use, so changing them in-game does nothing until the
+        // component is rebuilt. Said in the description because that is what the in-game editor
+        // shows - without it the sliders look broken.
         WalkSpeedMultiplier = Config.Bind(
             "3. Movement", "WalkSpeedMultiplier", 1.0f,
             new ConfigDescription(
-                "Multiplies walk speed. 1.0 is vanilla.",
+                "Multiplies walk speed. 1.0 is vanilla. "
+                + "APPLIES ON RESTART - changing this in-game has no effect until you reload a save.",
                 new AcceptableValueRange<float>(0.1f, 10f)));
 
         RunSpeedMultiplier = Config.Bind(
@@ -75,7 +80,8 @@ public class Plugin : BaseUnityPlugin
             new ConfigDescription(
                 "Multiplies sprint speed. Note the game derives ground acceleration from the ratio "
                 + "of run to walk speed, so raising this alone also makes sprinting accelerate "
-                + "harder. Scale both together to keep the vanilla feel. 1.0 is vanilla.",
+                + "harder. Scale both together to keep the vanilla feel. 1.0 is vanilla. "
+                + "APPLIES ON RESTART - changing this in-game has no effect until you reload a save.",
                 new AcceptableValueRange<float>(0.1f, 10f)));
 
         SkipCraftingMinigame = Config.Bind(

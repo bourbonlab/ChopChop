@@ -7,5 +7,6 @@ decompiled/
 # Downloaded third-party tooling (BepInEx redistributable).
 tools/
 
-# Build output staged for deployment.
+# Build output staged for deployment, including the Nexus upload archive.
 dist/
+*.zip

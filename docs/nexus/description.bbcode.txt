@@ -1,0 +1,117 @@
+[size=5][b]Description[/b][/size]
+
+A two-plugin pack for [i]Chop Chop Inc.[/i] that lets you tune the grind instead of grinding it.
+
+[b]More Wood[/b] multiplies what trees, logs and respawning resources drop. [b]Chop Chop Tweaks[/b] scales the rest of the loop: axe damage, swing speed, movement, money in and out, crafting yield and speed, plus an optional item magnet.
+
+[b]Every single setting ships at its vanilla value.[/b] Installing the pack changes nothing until you decide what to change, so you can dial in exactly the amount of convenience you want and leave everything else alone. Settings are edited in-game from a settings window, and most of them apply the moment you change them.
+
+Both plugins work by scaling values the game already computes, at the one place each value passes through. Nothing is written back into save data or game assets, so uninstalling is just deleting two folders, and your save is untouched.
+
+
+[size=5][b]Installation[/b][/size]
+
+[b]1. Install BepInEx 5[/b]
+Download [b]BepInEx_win_x64_5.4.23.3.zip[/b] from the BepInEx releases page (the BepInEx 5 x64 build — [b]not[/b] the IL2CPP one; Chop Chop Inc. is a Mono build). Extract it into your game folder, so that [b]winhttp.dll[/b] sits right next to [b]ChopChopInc.exe[/b].
+
+Default Steam path:
+[code]steamapps\common\ChopChopInc[/code]
+
+[b]2. Run the game once, then quit[/b]
+This generates the [b]BepInEx\plugins[/b] and [b]BepInEx\config[/b] folders.
+
+[b]3. Install the mods[/b]
+Extract this download into the [b]same game folder[/b] — the archive contains a [b]BepInEx[/b] folder that merges with the one already there. You should end up with:
+[code]BepInEx\plugins\MoreWood\MoreWood.dll
+BepInEx\plugins\ChopChopTweaks\ChopChopTweaks.dll[/code]
+You can install just one of the two if you only want half the pack — delete the folder of the one you don't want. They are independent and neither requires the other.
+
+[b]4. Install the settings editor (strongly recommended)[/b]
+Download [b]BepInEx.ConfigurationManager_BepInEx5_v19.0.zip[/b] and extract it into the game folder the same way. It adds an in-game settings window that reads every setting both plugins expose.
+
+[b]5. Launch[/b]
+Press [b]F1[/b] to open the settings window (ConfigurationManager's default key — rebind it under [i]Configuration Manager → Keyboard shortcuts[/i] if it clashes). Settings are grouped into numbered sections and each multiplier is a slider. Edits save automatically.
+
+[b]Editing the config files by hand[/b]
+[code]BepInEx\config\chopchopmods.morewood.cfg
+BepInEx\config\chopchopmods.tweaks.cfg[/code]
+Both are generated on first launch. [b]File edits need a game restart[/b] — BepInEx 5 does not watch the config files for changes. The in-game window is the way to tweak things live.
+
+[b]Uninstalling[/b]
+Delete the [b]MoreWood[/b] and [b]ChopChopTweaks[/b] folders from [b]BepInEx\plugins[/b]. Nothing is written into your save, so it reverts cleanly.
+
+[b]Troubleshooting[/b]
+If nothing happens, open [b]BepInEx\LogOutput.log[/b] and look for [i]"More Wood loaded."[/i] and [i]"Chop Chop Tweaks loaded."[/i] near the top. No BepInEx log at all means the loader isn't installed correctly — check that winhttp.dll is beside the .exe.
+
+
+[size=5][b]Main features[/b][/size]
+
+[size=4][b]More Wood — drop multipliers[/b][/size]
+
+[b]Multiply what everything drops.[/b] One multiplier covers trees dropping logs and logs dropping wood; separate multipliers cover per-hit debris and timed resource regrowth, so you can boost the drops that matter without spraying woodchips everywhere.
+
+[b]Fractional multipliers work properly.[/b] A 1.5x on a single-item drop gives you 1 or 2 with the correct long-run average, instead of quietly rounding down to nothing.
+
+[b]Per-prefab targeting.[/b] Restrict the whole mod to specific items by name fragment, or give individual items their own multiplier — e.g. logs x4 but wood x6 — overriding the category value.
+
+[b]Stack size instead of object count.[/b] A separate multiplier makes one pickup [i]worth[/i] more rather than spawning more physical objects. Five trunks landing on one spawn point is five rigidbodies for the physics solver to fight over; one trunk worth five is free. This is the recommended way to get big numbers.
+
+[b]Anti-stacking scatter.[/b] Extra objects that the game would spawn at one exact point get a small random horizontal offset, so they don't interpenetrate and rocket across the map. Adjustable, and it leaves the game's own randomisation alone where it already exists.
+
+[b]A safety cap.[/b] A hard per-drop ceiling means a mistyped multiplier can't turn a tree into a physics bomb.
+
+[b]Spawn logging.[/b] Turn it on to see every drop in the log as [i]LogName: 2 -> 6 (x3)[/i] — which is also how you find the prefab names to use in the targeting options.
+
+[size=4][b]Chop Chop Tweaks — everything else[/b][/size]
+
+[b]Axe damage.[/b] Fewer swings per tree. Scales damage only — healing is never touched.
+
+[b]Swing speed.[/b] A real attack speed: windup, hit and recovery all scale together, and the first-person hands follow correctly. Applies from your very next swing, no reload.
+
+[b]Movement speed.[/b] Separate walk and run multipliers. The game derives ground acceleration from the ratio between them, so scaling both together keeps the vanilla feel. [i](These two apply on the next save load rather than instantly.)[/i]
+
+[b]Money, both directions.[/b] Income and cost are separate multipliers, so you can make selling more generous without also making the shop free — or set cost to 0 and make it free on purpose.
+
+[b]Skip the crafting minigame.[/b] Crafts complete the instant you pick a recipe. Ingredients are still required and still consumed; it goes through the game's own craft call, so nothing is bypassed except the minigame itself.
+
+[b]Craft output multiplier.[/b] More output per craft for the same ingredient cost — the recipe-efficiency knob. Like the stack multiplier above, it grows stack size rather than object count, with its own safety cap.
+
+[b]Automated crafting speed.[/b] Speeds up automated crafters (hand crafting has no timer). It composes with the game's own CraftSpeed upgrades rather than overwriting them, so buying an upgrade still helps.
+
+[b]Item magnet.[/b] Optional, off by default. Set a radius in metres and nearby items come to you. It collects through the game's normal pickup path, so it can never grab something you couldn't have picked up by walking into it, and there's a toggle for whether it should also take items meant for deliberate pickup.
+
+[size=4][b]Design notes[/b][/size]
+[list]
+[*][b]Vanilla by default.[/b] Every value starts where the game left it.
+[*][b]Save-safe.[/b] Multipliers are applied to values in flight and never written into save data, shared recipe assets or shared prefab tables — so nothing compounds over time and nothing persists if you uninstall.
+[*][b]Live editing.[/b] Everything except the two movement multipliers takes effect immediately.
+[*][b]Use one or both.[/b] The two plugins are independent.
+[/list]
+
+
+[size=5][b]Requirements[/b][/size]
+
+[list]
+[*][b]BepInEx 5.4.23.3, x64, Unity Mono build[/b] — required. Get [i]BepInEx_win_x64_5.4.23.3.zip[/i]. Do not use the IL2CPP build; the game is Mono and it will not load.
+[*][b]Chop Chop Inc.[/b], Windows (Steam). Built against the Unity 6000.3.5f2 build of the game.
+[*][b]BepInEx ConfigurationManager v19.0[/b] (BepInEx 5 build) — optional but strongly recommended. Without it you can still configure everything, but only by editing the .cfg files, which requires a game restart each time.
+[/list]
+
+No other mods are required, and there are no known conflicts. The two plugins do not depend on each other.
+
+[b]After a game update:[/b] if a patch changes the game's internals, the plugins log a clear warning at startup rather than failing silently. If you see one in [i]BepInEx\LogOutput.log[/i], please report it here.
+
+
+[size=5][b]Shout outs[/b][/size]
+
+[b]NullRef Entertainment[/b] — for Chop Chop Inc., a game good enough to want more of.
+
+[b]The BepInEx team[/b] — for the loader, and for [b]ConfigurationManager[/b], which is doing all of the settings-UI work here. There is no custom UI code in this pack; the window you see is ConfigurationManager reflecting over the settings the plugins register.
+
+[b]Andreas Pardeike[/b] — for [b]Harmony[/b], which every patch in both plugins is built on.
+
+[b]NeighTools[/b] — for [b]UnityDoorstop[/b], the piece that actually gets code into the game.
+
+[b]The ILSpy team[/b] — for the decompiler that made it possible to find the right places to hook.
+
+[b]<add anyone who tested, reported bugs or gave you ideas here>[/b]

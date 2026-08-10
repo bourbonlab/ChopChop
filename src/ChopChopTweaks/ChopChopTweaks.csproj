@@ -39,6 +39,11 @@
       <HintPath>$(GameManagedDir)/UnityEngine.PhysicsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- Animator, for the swing speed patch. -->
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>$(GameManagedDir)/UnityEngine.AnimationModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
 </Project>

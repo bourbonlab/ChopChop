@@ -167,6 +167,7 @@ Config: `<game>/BepInEx/config/chopchopmods.tweaks.cfg`
 | Setting | Default | Notes |
 |---|---|---|
 | `Axe.DamageMultiplier` | `1.0` | Fewer swings per tree. Only scales damage, never healing — `Health.ChangeHealth` does `CurrentHealth += delta`, so damage is the negative side |
+| `Axe.SwingSpeedMultiplier` | `1.0` | How fast you can swing. Applies to any item's use animation, not just the axe. Above ~5 gives little extra and can start dropping hits |
 | `Economy.IncomeMultiplier` | `1.0` | Money from selling |
 | `Economy.CostMultiplier` | `1.0` | Money spent in the shop; `0` makes purchases free |
 | `Movement.WalkSpeedMultiplier` | `1.0` | **Applies on restart** — set in `Move.Awake`, so live edits wait for the next save load |
@@ -186,6 +187,23 @@ would make selling lucrative and buying free simultaneously.
 The minigame skip hooks `MinigameCraftingServiceImpl.SetRecipe` and calls `Crafter.Craft(recipe)`
 directly — the same public method `MinigameCraftingObject` calls when you solve the minigame, so
 ingredient checks and consumption are unchanged.
+
+### Swing speed
+
+There is no attack cooldown to shorten — the rate limit *is* the animation. `Item.Use` only fires
+when `AnimationCallbacks.CanUse` is true, and that is
+`animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")`, so the next swing waits for the Use clip
+to finish and hand back to Idle. The hit itself lands on an animation event partway through, which
+calls `Item._Use` and runs the item's actions.
+
+So `animator.speed` is the entire feature. It scales windup, hit event and recovery together, which
+is what makes it a real attack speed rather than just an earlier hit. The first-person hands come
+along for free: `FPSHandVisuals` does not animate the swing, it snaps the hands to
+`currentItem.GetPivot()` every `LateUpdate`, and that pivot is the item's animated transform.
+
+Set per swing rather than once at Awake, so unlike the movement multipliers it takes effect on the
+next swing with no reload. The ceiling is real though — the swing still has to last long enough for
+the animation event to fire, so very high values drop hits rather than adding speed.
 
 ### Crafting multipliers
 
@@ -237,6 +255,7 @@ src/MoreWood/
 src/ChopChopTweaks/
   Plugin.cs            config schema, magnet host, startup self-check
   AxeDamagePatch.cs    ChangeTargetHealth.Use
+  SwingSpeedPatch.cs   AnimationCallbacks.PlayUseAnimation
   MoneyPatch.cs        MoneyServiceImpl.Change
   MoveSpeedPatch.cs    Move.Awake
   MinigameSkipPatch.cs MinigameCraftingServiceImpl.SetRecipe

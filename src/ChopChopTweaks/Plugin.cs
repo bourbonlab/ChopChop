@@ -4,6 +4,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using Service.MinigameCrafting;
 using UnityEngine;
+using WorldObjects.Items;
 using WorldObjects.Player;
 using WorldObjects.Useables;
 
@@ -25,6 +26,7 @@ public class Plugin : BaseUnityPlugin
     internal static ManualLogSource Log { get; private set; }
 
     internal static ConfigEntry<float> AxeDamageMultiplier;
+    internal static ConfigEntry<float> SwingSpeedMultiplier;
 
     internal static ConfigEntry<float> IncomeMultiplier;
     internal static ConfigEntry<float> CostMultiplier;
@@ -54,6 +56,16 @@ public class Plugin : BaseUnityPlugin
                 + "Only scales damage (health going down), never healing or repair, so tools that "
                 + "restore health are unaffected. 1.0 is vanilla.",
                 new AcceptableValueRange<float>(0.1f, 50f)));
+
+        SwingSpeedMultiplier = Config.Bind(
+            "1. Axe", "SwingSpeedMultiplier", 1.0f,
+            new ConfigDescription(
+                "Multiplies how fast items swing, and so how fast you can swing again - the game "
+                + "gates the next swing on the animation returning to idle, there is no separate "
+                + "cooldown. Applies to any item you use, not just the axe. Values much above 5 "
+                + "give little extra, and can start dropping hits: the swing has to last long "
+                + "enough for the animation event that deals the damage to fire. 1.0 is vanilla.",
+                new AcceptableValueRange<float>(0.1f, 10f)));
 
         IncomeMultiplier = Config.Bind(
             "2. Economy", "IncomeMultiplier", 1.0f,
@@ -153,6 +165,7 @@ public class Plugin : BaseUnityPlugin
 
         Log.LogInfo(
             $"Chop Chop Tweaks loaded. Axe x{AxeDamageMultiplier.Value}, "
+            + $"swingSpeed x{SwingSpeedMultiplier.Value}, "
             + $"income x{IncomeMultiplier.Value}, cost x{CostMultiplier.Value}, "
             + $"walk x{WalkSpeedMultiplier.Value}, run x{RunSpeedMultiplier.Value}, "
             + $"skipMinigame={SkipCraftingMinigame.Value}, "
@@ -163,10 +176,11 @@ public class Plugin : BaseUnityPlugin
 
     /// <summary>
     /// Most patch targets are referenced through typed <c>nameof</c>, so the compiler catches a
-    /// renamed method. These three cannot be: <c>Move.Awake</c> and <c>Crafter.SpawnRecipeItem</c>
-    /// are private and matched by string, and <c>MinigameSkipPatch</c> reads the service's private
-    /// <c>crafter</c> field by name. Check them up front so a game update produces one clear line
-    /// instead of a Harmony stack trace.
+    /// renamed method. These cannot be: <c>Move.Awake</c> and <c>Crafter.SpawnRecipeItem</c> are
+    /// private and matched by string, and two patches reach private fields by name -
+    /// <c>MinigameSkipPatch</c> the service's <c>crafter</c>, <c>SwingSpeedPatch</c> the
+    /// <c>animator</c>. Check them up front so a game update produces one clear line instead of a
+    /// Harmony stack trace.
     /// </summary>
     private static void VerifyPatchTargets()
     {
@@ -179,6 +193,12 @@ public class Plugin : BaseUnityPlugin
         {
             Log.LogWarning(
                 "MinigameCraftingServiceImpl.crafter not found - minigame skip will not apply.");
+        }
+
+        if (AccessTools.Field(typeof(AnimationCallbacks), "animator") == null)
+        {
+            Log.LogWarning(
+                "AnimationCallbacks.animator not found - the swing speed multiplier will not apply.");
         }
 
         if (AccessTools.Method(typeof(Crafter), "SpawnRecipeItem") == null)

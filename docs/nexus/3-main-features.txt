@@ -30,6 +30,10 @@
 
 [b]Automated crafting speed.[/b] Speeds up automated crafters (hand crafting has no timer). It composes with the game's own CraftSpeed upgrades rather than overwriting them, so buying an upgrade still helps.
 
+[b]Stamina use multiplier.[/b] Scales how much stamina everything costs — set it to 0 and the bar never moves. Regeneration is left at the vanilla rate on purpose: draining and refilling half as fast would just cancel out.
+
+[b]Stat gain multiplier.[/b] Multiplies the permanent stat points you earn from the treadmill, the weight bench and mission rewards, so a single workout is worth several. Temporary food and drink buffs are left alone, and the game's own hard cap still applies — a big multiplier reaches the ceiling sooner rather than passing through it.
+
 [b]Item magnet.[/b] Optional, off by default. Set a radius in metres and nearby items come to you. It collects through the game's normal pickup path, so it can never grab something you couldn't have picked up by walking into it, and there's a toggle for whether it should also take items meant for deliberate pickup.
 
 [size=4][b]Design notes[/b][/size]

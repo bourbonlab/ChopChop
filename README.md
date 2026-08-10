@@ -6,9 +6,9 @@ Two plugins:
 
 - **More Wood** — multiplies how many logs trees drop and how much wood logs drop, plus a
   whitelist-scoped stack multiplier.
-- **Chop Chop Tweaks** — axe damage, money scaling, movement speed, crafting minigame skip and
-  an item magnet. **Every setting defaults to vanilla**, so installing it changes nothing until
-  you configure it.
+- **Chop Chop Tweaks** — axe damage, money scaling, movement speed, crafting minigame skip, an
+  item magnet and player stat scaling. **Every setting defaults to vanilla**, so installing it
+  changes nothing until you configure it.
 
 ## Game facts
 
@@ -180,6 +180,8 @@ Config: `<game>/BepInEx/config/chopchopmods.tweaks.cfg`
 | `ItemMagnet.Radius` | `0.0` | Metres. `0` disables |
 | `ItemMagnet.IntervalSeconds` | `0.2` | Scan cadence |
 | `ItemMagnet.IncludeActiveCollectables` | `false` | Whether to also grab items meant for deliberate pickup |
+| `PlayerStats.StaminaUseMultiplier` | `1.0` | Scales every stamina cost; `0` stops consumption entirely. Regeneration stays at the vanilla rate |
+| `PlayerStats.StatGainMultiplier` | `1.0` | Scales permanent stat points earned — treadmill, weight bench, mission rewards. Not temporary buffs, and not the game's hard cap |
 
 Income and cost are separate multipliers because `MoneyServiceImpl.Change` is the only mutation
 point and its *sign* is the only thing distinguishing a sale from a purchase — one multiplier
@@ -230,6 +232,43 @@ by the next upgrade. Scaling `deltaTime` composes with upgrades instead. Only au
 have a timer — hand crafting goes straight through `CraftDefault` — and the game crafts at most once
 per tick, so very large values stop helping.
 
+### Player stats
+
+Both stat multipliers patch `PlayerStats`, which is the single funnel every stat change passes
+through: sprinting drains stamina from `CustomCharacterController.UpdateVelocity`, and items and
+missions spend or grant stats through `ChangePlayerStatValue` / `MissionAction_ChangePlayerStat`.
+Patching the funnel covers all of them without chasing each caller.
+
+**Stamina use** scales negative deltas to `PlayerStat.Stamina`. Regeneration is the positive side —
+a `statValueAutoChange` entry ticked from `PlayerStats.Tick` — and is deliberately left alone:
+draining and refilling half as fast is the same stamina budget, which would make the multiplier a
+no-op. Only the drain moves, so `0` means the bar never falls.
+
+The public `ChangeStatValue` is the target rather than the private `ChangeStatValueInternal`. Timed
+effects store the delta they were handed and revert that same stored value on expiry, so scaling on
+the way in stays symmetrical; scaling the internal method would scale the revert a second time and
+drift the stat.
+
+**Stat gain** scales the permanent upgrades — treadmill stamina and move speed, weight bench
+strength, mission rewards. It takes both halves of an upgrade, `ChangeMaxStatValue` and
+`ChangeStatValue`, and the game applies max first, so a bigger gain has the headroom to land instead
+of being clamped to the old ceiling. Three exclusions:
+
+- **Temporary changes** (`activeTime > 0`) — the food and drink buff path. Consumables, not
+  progression, and the value is handed back when the timer expires.
+- **The current value of Stamina** — that is the bar, moved by regeneration, sprinting and snacks
+  alike, not a stat point. Its *ceiling* still scales, so a stamina upgrade gives the multiplied
+  amount of extra bar. Strength and MoveSpeedFactor have no such bar — the game reads their current
+  value directly as the damage factor in `ChangeTargetHealth.Use` and the speed factor in
+  `CustomCharacterController.UpdateVelocity` — so for those the current value *is* the stat point,
+  and it scales.
+- **The minimum**, which is a floor rather than a stat point; multiplying it could push it past the
+  ceiling.
+
+The game's own hard cap still applies. `PlayerStats.GetMaxHardcapDelta` trims a raise to the
+headroom left under the stat's `minMaxHardCap`, so a large multiplier reaches the cap sooner rather
+than passing through it.
+
 The magnet is a behaviour, not a patch, because nothing in the game polls for nearby pickups. It
 still collects through `Collectable.TryToCollect`, which runs the game's own player, inventory and
 player-stat checks — so it cannot pick up anything you could not have collected by walking into it.
@@ -264,6 +303,8 @@ src/ChopChopTweaks/
   CraftOutputPatch.cs  Crafter.SpawnRecipeItem
   CraftSpeedPatch.cs   Crafter.Tick
   ItemMagnet.cs        OverlapSphere -> Collectable.TryToCollect
+  StaminaUsePatch.cs   PlayerStats.ChangeStatValue, negative stamina only
+  StatGainPatch.cs     PlayerStats.ChangeMaxStatValue + ChangeStatValue, permanent gains only
 scripts/            fetch-bepinex.sh, deploy.sh, decompile.sh
 tools/              BepInEx redistributable (gitignored)
 decompiled/         game C# for reference (gitignored)

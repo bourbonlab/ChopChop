@@ -1,6 +1,6 @@
 A two-plugin pack for [i]Chop Chop Inc.[/i] that lets you tune the grind instead of grinding it.
 
-[b]More Wood[/b] multiplies what trees, logs and respawning resources drop. [b]Chop Chop Tweaks[/b] scales the rest of the loop: axe damage, swing speed, movement, money in and out, crafting yield and speed, plus an optional item magnet.
+[b]More Wood[/b] multiplies what trees, logs and respawning resources drop. [b]Chop Chop Tweaks[/b] scales the rest of the loop: axe damage, swing speed, movement, money in and out, crafting yield and speed, stamina use and stat gains, plus an optional item magnet.
 
 [b]Every single setting ships at its vanilla value.[/b] Installing the pack changes nothing until you decide what to change, so you can dial in exactly the amount of convenience you want and leave everything else alone. Settings are edited in-game from a settings window, and most of them apply the moment you change them.
 

@@ -2,7 +2,7 @@
 
 A two-plugin pack for [i]Chop Chop Inc.[/i] that lets you tune the grind instead of grinding it.
 
-[b]More Wood[/b] multiplies what trees, logs and respawning resources drop. [b]Chop Chop Tweaks[/b] scales the rest of the loop: axe damage, swing speed, movement, money in and out, crafting yield and speed, plus an optional item magnet.
+[b]More Wood[/b] multiplies what trees, logs and respawning resources drop. [b]Chop Chop Tweaks[/b] scales the rest of the loop: axe damage, swing speed, movement, money in and out, crafting yield and speed, stamina use and stat gains, plus an optional item magnet.
 
 [b]Every single setting ships at its vanilla value.[/b] Installing the pack changes nothing until you decide what to change, so you can dial in exactly the amount of convenience you want and leave everything else alone. Settings are edited in-game from a settings window, and most of them apply the moment you change them.
 
@@ -77,6 +77,10 @@ If nothing happens, open [b]BepInEx\LogOutput.log[/b] and look for [i]"More Wood
 [b]Craft output multiplier.[/b] More output per craft for the same ingredient cost — the recipe-efficiency knob. Like the stack multiplier above, it grows stack size rather than object count, with its own safety cap.
 
 [b]Automated crafting speed.[/b] Speeds up automated crafters (hand crafting has no timer). It composes with the game's own CraftSpeed upgrades rather than overwriting them, so buying an upgrade still helps.
+
+[b]Stamina use multiplier.[/b] Scales how much stamina everything costs — set it to 0 and the bar never moves. Regeneration is left at the vanilla rate on purpose: draining and refilling half as fast would just cancel out.
+
+[b]Stat gain multiplier.[/b] Multiplies the permanent stat points you earn from the treadmill, the weight bench and mission rewards, so a single workout is worth several. Temporary food and drink buffs are left alone, and the game's own hard cap still applies — a big multiplier reaches the ceiling sooner rather than passing through it.
 
 [b]Item magnet.[/b] Optional, off by default. Set a radius in metres and nearby items come to you. It collects through the game's normal pickup path, so it can never grab something you couldn't have picked up by walking into it, and there's a toggle for whether it should also take items meant for deliberate pickup.
 

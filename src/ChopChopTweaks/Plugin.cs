@@ -12,12 +12,12 @@ namespace ChopChopTweaks;
 
 /// <summary>
 /// Quality-of-life and balance tweaks: axe damage, money scaling, movement speed, crafting
-/// minigame skip and an item magnet.
+/// minigame skip, an item magnet and player stat scaling.
 ///
 /// Every setting defaults to vanilla behaviour - multipliers at 1.0, toggles off, magnet radius
 /// at 0 - so installing this plugin changes nothing until it is configured.
 /// </summary>
-[BepInPlugin(Guid, "Chop Chop Tweaks", "1.1.1")]
+[BepInPlugin(Guid, "Chop Chop Tweaks", "1.2.0")]
 [BepInProcess("ChopChopInc.exe")]
 public class Plugin : BaseUnityPlugin
 {
@@ -42,6 +42,9 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float> MagnetRadius;
     internal static ConfigEntry<float> MagnetInterval;
     internal static ConfigEntry<bool> MagnetIncludesActiveCollectables;
+
+    internal static ConfigEntry<float> StaminaUseMultiplier;
+    internal static ConfigEntry<float> StatGainMultiplier;
 
     private Harmony harmony;
 
@@ -152,6 +155,25 @@ public class Plugin : BaseUnityPlugin
             + "(those with an ActiveCollectable component). Off by default, since hoovering these "
             + "up can bypass intended interactions.");
 
+        StaminaUseMultiplier = Config.Bind(
+            "6. Player stats", "StaminaUseMultiplier", 1.0f,
+            new ConfigDescription(
+                "Multiplies how much stamina everything costs - sprinting and anything else that "
+                + "spends it. 0 stops stamina being consumed at all. Regeneration is left at the "
+                + "vanilla rate either way, since scaling drain and refill together would cancel "
+                + "out. 1.0 is vanilla.",
+                new AcceptableValueRange<float>(0f, 10f)));
+
+        StatGainMultiplier = Config.Bind(
+            "6. Player stats", "StatGainMultiplier", 1.0f,
+            new ConfigDescription(
+                "Multiplies the permanent stat points you earn - treadmill stamina and move speed, "
+                + "weight bench strength, mission rewards. Raises both the stat and its maximum, "
+                + "but not the game's hard cap, so a big multiplier reaches the ceiling sooner "
+                + "rather than passing it. Temporary food and drink buffs are not scaled, and "
+                + "neither is the stamina bar refilling - only its maximum. 1.0 is vanilla.",
+                new AcceptableValueRange<float>(0.1f, 50f)));
+
         VerifyPatchTargets();
 
         harmony = new Harmony(Guid);
@@ -171,7 +193,8 @@ public class Plugin : BaseUnityPlugin
             + $"skipMinigame={SkipCraftingMinigame.Value}, "
             + $"craftOutput x{CraftOutputMultiplier.Value}, "
             + $"autoCraftSpeed x{AutoCraftSpeedMultiplier.Value}, "
-            + $"magnet={MagnetRadius.Value}m.");
+            + $"magnet={MagnetRadius.Value}m, "
+            + $"staminaUse x{StaminaUseMultiplier.Value}, statGain x{StatGainMultiplier.Value}.");
     }
 
     /// <summary>

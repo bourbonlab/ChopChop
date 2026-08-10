@@ -13,7 +13,7 @@ namespace MoreWood;
 /// so a single prefix there covers trees dropping logs, logs dropping wood, and
 /// timed resource respawners. See <see cref="SpawnRewriter"/> for the actual rewrite.
 /// </summary>
-[BepInPlugin(Guid, "More Wood", "1.0.0")]
+[BepInPlugin(Guid, "More Wood", "1.1.1")]
 [BepInProcess("ChopChopInc.exe")]
 public class Plugin : BaseUnityPlugin
 {
@@ -85,9 +85,10 @@ public class Plugin : BaseUnityPlugin
                 new AcceptableValueRange<float>(1f, 50f)));
 
         PrefabWhitelist = Config.Bind(
-            "3. Targeting", "OnlyThesePrefabs", "",
+            "3. Targeting", "OnlyThesePrefabs", "p_Trunk_",
             "Comma-separated prefab name fragments. When set, only prefabs whose name contains one of "
-            + "these (case-insensitive) get multiplied. Empty means everything. "
+            + "these (case-insensitive) get multiplied. Empty means everything - which also disables "
+            + "'StackMultiplier' entirely, so the default scopes both to tree trunks. "
             + "Example: Log,Wood");
 
         PrefabOverrides = Config.Bind(

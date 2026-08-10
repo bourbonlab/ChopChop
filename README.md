@@ -131,7 +131,7 @@ next launch. The in-game editor above is the way around that.
 | `OnDestroy` | `2.0` | Tree → logs, log → wood. **The one you want.** |
 | `OnDamage` | `1.0` | Per-hit drops; often woodchips, so raising it can spam particles |
 | `Respawner` | `1.0` | Timed regrowth; raising it stacks objects on one spawn point |
-| `OnlyThesePrefabs` | *(empty)* | Comma-separated name fragments; empty means everything |
+| `OnlyThesePrefabs` | `p_Trunk_` | Comma-separated name fragments; empty means everything (and disables `StackMultiplier`) |
 | `PrefabOverrides` | *(empty)* | `Name=Multiplier, ...` — beats the category multiplier |
 | `MaxAmountPerEntry` | `200` | Hard cap; guards against a typo becoming a physics bomb |
 | `ScatterRadius` | `0.35` | Metres of horizontal spread for stacked extras; `0` disables |
@@ -145,7 +145,8 @@ one point. Prefer it over raising `OnDestroy`.
 
 It is deliberately gated on `OnlyThesePrefabs` alone — **with an empty whitelist it does
 nothing.** Stack size lands straight in your inventory, so a mis-scoped multiplier here is much
-harder to notice than extra objects on the ground.
+harder to notice than extra objects on the ground. That is why the whitelist ships scoped to
+`p_Trunk_` rather than empty; widen it only once `LogSpawns` has shown you the names.
 
 ```ini
 [2b. Stack size]

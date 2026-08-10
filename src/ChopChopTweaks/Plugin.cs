@@ -17,7 +17,7 @@ namespace ChopChopTweaks;
 /// Every setting defaults to vanilla behaviour - multipliers at 1.0, toggles off, magnet radius
 /// at 0 - so installing this plugin changes nothing until it is configured.
 /// </summary>
-[BepInPlugin(Guid, "Chop Chop Tweaks", "1.0.0")]
+[BepInPlugin(Guid, "Chop Chop Tweaks", "1.1.1")]
 [BepInProcess("ChopChopInc.exe")]
 public class Plugin : BaseUnityPlugin
 {

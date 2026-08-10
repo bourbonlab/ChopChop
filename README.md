@@ -172,6 +172,9 @@ Config: `<game>/BepInEx/config/chopchopmods.tweaks.cfg`
 | `Movement.WalkSpeedMultiplier` | `1.0` | **Applies on restart** — set in `Move.Awake`, so live edits wait for the next save load |
 | `Movement.RunSpeedMultiplier` | `1.0` | The game derives ground acceleration from run÷walk, so scale both together to keep the vanilla feel. **Applies on restart** |
 | `Crafting.SkipMinigame` | `false` | Crafts instantly on recipe selection; ingredients still required and consumed |
+| `Crafting.OutputMultiplier` | `1.0` | Multiplies craft yield via stack size, not object count — free at runtime. Ingredient cost is unchanged, so this is the recipe efficiency knob |
+| `Crafting.MaxOutputPerItem` | `200` | Hard cap on a single output stack; guards against a mistyped multiplier |
+| `Crafting.AutoCraftSpeedMultiplier` | `1.0` | Automated crafters only — hand crafting has no timer. Composes with the game's own CraftSpeed upgrades |
 | `ItemMagnet.Radius` | `0.0` | Metres. `0` disables |
 | `ItemMagnet.IntervalSeconds` | `0.2` | Scan cadence |
 | `ItemMagnet.IncludeActiveCollectables` | `false` | Whether to also grab items meant for deliberate pickup |
@@ -183,6 +186,30 @@ would make selling lucrative and buying free simultaneously.
 The minigame skip hooks `MinigameCraftingServiceImpl.SetRecipe` and calls `Crafter.Craft(recipe)`
 directly — the same public method `MinigameCraftingObject` calls when you solve the minigame, so
 ingredient checks and consumption are unchanged.
+
+### Crafting multipliers
+
+Both scale an argument rather than game data, which is what keeps them safe.
+
+**Output** patches `Crafter.SpawnRecipeItem`, the one method every craft output passes through, and
+scales the `amount` it writes to `Collectable.Amount`. Recipes flagged `spawnAsSingleItem` call it
+once with the full amount; the rest call it once per unit with `1`. Either way the object count is
+untouched and only stack size grows — the same "multiply what a pickup is worth, not how many exist"
+trade-off behind More Wood's `StackMultiplier`, and for the same reason: extra rigidbodies landing on
+one spawn point is what `ScatterRadius` exists to mitigate.
+
+Writing `recipe.output` instead would be a trap. `Recipe` is a ScriptableObject whose output array is
+shared by every crafter using it, so the amounts would compound each craft and persist into the
+asset. No undo is needed either — the boosted value lands on a freshly spawned `Collectable` rather
+than being read back and rewritten, unlike the stack boost applied at pickup time in More Wood.
+
+**Speed** patches `Crafter.Tick`, whose only use of `deltaTime` is
+`CurrentCraftTimer += deltaTime * craftSpeedFactor`. Scaling the argument leaves `craftSpeedFactor`
+alone deliberately: that field belongs to the game's upgrade system, which does
+`craftSpeedFactor += delta` when a CraftSpeed upgrade is bought, so writing it would be overwritten
+by the next upgrade. Scaling `deltaTime` composes with upgrades instead. Only automated crafters
+have a timer — hand crafting goes straight through `CraftDefault` — and the game crafts at most once
+per tick, so very large values stop helping.
 
 The magnet is a behaviour, not a patch, because nothing in the game polls for nearby pickups. It
 still collects through `Collectable.TryToCollect`, which runs the game's own player, inventory and
@@ -213,6 +240,9 @@ src/ChopChopTweaks/
   MoneyPatch.cs        MoneyServiceImpl.Change
   MoveSpeedPatch.cs    Move.Awake
   MinigameSkipPatch.cs MinigameCraftingServiceImpl.SetRecipe
+  CraftUIRestorer.cs   reopens the recipe list after a skipped craft
+  CraftOutputPatch.cs  Crafter.SpawnRecipeItem
+  CraftSpeedPatch.cs   Crafter.Tick
   ItemMagnet.cs        OverlapSphere -> Collectable.TryToCollect
 scripts/            fetch-bepinex.sh, deploy.sh, decompile.sh
 tools/              BepInEx redistributable (gitignored)

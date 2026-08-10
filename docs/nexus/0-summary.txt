@@ -1,0 +1,1 @@
+Two BepInEx mods for Chop Chop Inc. More Wood multiplies tree, log and respawn drops, with per-prefab overrides and stack-size scaling. Chop Chop Tweaks scales axe damage, swing speed, move speed, money in and out, craft output and auto-craft speed, plus a minigame skip and item magnet. Everything defaults to vanilla and is tunable in-game with F1.

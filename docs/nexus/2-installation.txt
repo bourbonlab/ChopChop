@@ -1,0 +1,31 @@
+[b]1. Install BepInEx 5[/b]
+Download [b]BepInEx_win_x64_5.4.23.3.zip[/b] from the BepInEx releases page (the BepInEx 5 x64 build — [b]not[/b] the IL2CPP one; Chop Chop Inc. is a Mono build). Extract it into your game folder, so that [b]winhttp.dll[/b] sits right next to [b]ChopChopInc.exe[/b].
+
+Default Steam path:
+[code]steamapps\common\ChopChopInc[/code]
+
+[b]2. Run the game once, then quit[/b]
+This generates the [b]BepInEx\plugins[/b] and [b]BepInEx\config[/b] folders.
+
+[b]3. Install the mods[/b]
+Extract this download into [b]BepInEx\plugins[/b]. You should end up with:
+[code]BepInEx\plugins\MoreWood\MoreWood.dll
+BepInEx\plugins\ChopChopTweaks\ChopChopTweaks.dll[/code]
+You can install just one of the two if you only want half the pack — they are independent and neither requires the other.
+
+[b]4. Install the settings editor (strongly recommended)[/b]
+Download [b]BepInEx.ConfigurationManager_BepInEx5_v19.0.zip[/b] and extract it into the game folder the same way. It adds an in-game settings window that reads every setting both plugins expose.
+
+[b]5. Launch[/b]
+Press [b]F1[/b] to open the settings window (ConfigurationManager's default key — rebind it under [i]Configuration Manager → Keyboard shortcuts[/i] if it clashes). Settings are grouped into numbered sections and each multiplier is a slider. Edits save automatically.
+
+[b]Editing the config files by hand[/b]
+[code]BepInEx\config\chopchopmods.morewood.cfg
+BepInEx\config\chopchopmods.tweaks.cfg[/code]
+Both are generated on first launch. [b]File edits need a game restart[/b] — BepInEx 5 does not watch the config files for changes. The in-game window is the way to tweak things live.
+
+[b]Uninstalling[/b]
+Delete the [b]MoreWood[/b] and [b]ChopChopTweaks[/b] folders from [b]BepInEx\plugins[/b]. Nothing is written into your save, so it reverts cleanly.
+
+[b]Troubleshooting[/b]
+If nothing happens, open [b]BepInEx\LogOutput.log[/b] and look for [i]"More Wood loaded."[/i] and [i]"Chop Chop Tweaks loaded."[/i] near the top. No BepInEx log at all means the loader isn't installed correctly — check that winhttp.dll is beside the .exe.

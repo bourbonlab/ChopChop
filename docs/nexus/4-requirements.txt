@@ -1,0 +1,9 @@
+[list]
+[*][b]BepInEx 5.4.23.3, x64, Unity Mono build[/b] — required. Get [i]BepInEx_win_x64_5.4.23.3.zip[/i]. Do not use the IL2CPP build; the game is Mono and it will not load.
+[*][b]Chop Chop Inc.[/b], Windows (Steam). Built against the Unity 6000.3.5f2 build of the game.
+[*][b]BepInEx ConfigurationManager v19.0[/b] (BepInEx 5 build) — optional but strongly recommended. Without it you can still configure everything, but only by editing the .cfg files, which requires a game restart each time.
+[/list]
+
+No other mods are required, and there are no known conflicts. The two plugins do not depend on each other.
+
+[b]After a game update:[/b] if a patch changes the game's internals, the plugins log a clear warning at startup rather than failing silently. If you see one in [i]BepInEx\LogOutput.log[/i], please report it here.

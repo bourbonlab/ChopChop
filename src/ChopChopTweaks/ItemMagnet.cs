@@ -13,6 +13,10 @@ namespace ChopChopTweaks;
 /// <see cref="Collectable.TryToCollect"/>, which performs its own player, inventory and
 /// player-stat checks, so the magnet cannot pick up anything the player could not have collected
 /// by walking into it.
+///
+/// It does not follow that any moment is a safe time to collect. The game only ever calls
+/// TryToCollect from a trigger on an active player, so scanning pauses whenever the player is
+/// deactivated - see the check in <see cref="Update"/>.
 /// </summary>
 internal class ItemMagnet : MonoBehaviour
 {
@@ -50,6 +54,19 @@ internal class ItemMagnet : MonoBehaviour
             {
                 return;
             }
+        }
+
+        // Fake-null covers a destroyed player but not a deactivated one, and any UI whose
+        // HidePlayer returns true - the crafting screens among them - has UIServiceImpl call
+        // SetActive(false) on the player while it is open. Collecting into a deactivated player is
+        // actively harmful rather than merely useless: a wieldable item auto-equips through
+        // CurrentItem.SetItem, which parents the new item to the inactive player, so the item's
+        // Awake never runs and the services the game injects there stay null. The next equip then
+        // throws inside Item.DestroyItem, and because the collectable was never consumed the magnet
+        // finds it again on every scan.
+        if (!player.gameObject.activeInHierarchy)
+        {
+            return;
         }
 
         Scan(radius);

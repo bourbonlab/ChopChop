@@ -1,0 +1,11 @@
+[b]NullRef Entertainment[/b] — for Chop Chop Inc., a game good enough to want more of.
+
+[b]The BepInEx team[/b] — for the loader, and for [b]ConfigurationManager[/b], which is doing all of the settings-UI work here. There is no custom UI code in this pack; the window you see is ConfigurationManager reflecting over the settings the plugins register.
+
+[b]Andreas Pardeike[/b] — for [b]Harmony[/b], which every patch in both plugins is built on.
+
+[b]NeighTools[/b] — for [b]UnityDoorstop[/b], the piece that actually gets code into the game.
+
+[b]The ILSpy team[/b] — for the decompiler that made it possible to find the right places to hook.
+
+[b]<add anyone who tested, reported bugs or gave you ideas here>[/b]

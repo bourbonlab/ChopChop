@@ -82,8 +82,8 @@ dotnet tool install -g ilspycmd --version 9.1.0.7988
 Then:
 
 ```bash
-./scripts/fetch-bepinex.sh   # downloads BepInEx into tools/ (gitignored)
-./scripts/deploy.sh          # builds + installs BepInEx and the plugin into the game
+./scripts/fetch-bepinex.sh   # downloads BepInEx + ConfigurationManager into tools/ (gitignored)
+./scripts/deploy.sh          # builds + installs BepInEx, the settings editor and the plugins
 ./scripts/decompile.sh       # optional: dump game C# into decompiled/ (gitignored)
 ```
 
@@ -98,13 +98,32 @@ export CHOPCHOP_DIR="/mnt/d/SteamLibrary/steamapps/common/ChopChopInc"
 
 ## Configuring
 
-Launch the game once to generate
-`<game>/BepInEx/config/chopchopmods.morewood.cfg`, then edit it.
+### In-game: press HOME
 
-**Config changes require a game restart.** BepInEx 5's `ConfigFile` exposes `Reload()` but
-installs no filesystem watcher, so editing the `.cfg` while the game is running has no effect
-until the next launch. (Installing the BepInEx ConfigurationManager plugin gives you an in-game
-editor instead.)
+`scripts/deploy.sh` installs [BepInEx ConfigurationManager](https://github.com/BepInEx/BepInEx.ConfigurationManager)
+and pre-binds it to **HOME**. It reflects over every setting both plugins register and builds the
+editor itself — there is no mod-side UI code to maintain, and nothing in it references game
+assemblies, so a game update cannot break it.
+
+Settings are grouped by the numbered section names (`1. Axe`, `2. Economy`, …) and each numeric
+one renders as a slider bounded by its `AcceptableValueRange`. Edits apply immediately and are
+written back to the `.cfg`.
+
+Rebind it in the window itself under *Configuration Manager → Keyboard shortcuts*, or edit
+`<game>/BepInEx/config/com.bepis.bepinex.configurationmanager.cfg`. Deploy only writes that file
+when it is absent, so a rebind survives redeploys.
+
+**Two settings ignore live edits:** `WalkSpeedMultiplier` and `RunSpeedMultiplier` are applied
+once in `Move.Awake`, so they take effect on the next save load. Their descriptions say so in the
+UI. Everything else reads its value at the point of use and responds instantly.
+
+### By hand
+
+Launch the game once to generate `<game>/BepInEx/config/chopchopmods.morewood.cfg`, then edit it.
+
+**File edits require a game restart.** BepInEx 5's `ConfigFile` exposes `Reload()` but installs
+no filesystem watcher, so editing the `.cfg` while the game is running has no effect until the
+next launch. The in-game editor above is the way around that.
 
 | Setting | Default | Notes |
 |---|---|---|
@@ -150,8 +169,8 @@ Config: `<game>/BepInEx/config/chopchopmods.tweaks.cfg`
 | `Axe.DamageMultiplier` | `1.0` | Fewer swings per tree. Only scales damage, never healing — `Health.ChangeHealth` does `CurrentHealth += delta`, so damage is the negative side |
 | `Economy.IncomeMultiplier` | `1.0` | Money from selling |
 | `Economy.CostMultiplier` | `1.0` | Money spent in the shop; `0` makes purchases free |
-| `Movement.WalkSpeedMultiplier` | `1.0` | |
-| `Movement.RunSpeedMultiplier` | `1.0` | The game derives ground acceleration from run÷walk, so scale both together to keep the vanilla feel |
+| `Movement.WalkSpeedMultiplier` | `1.0` | **Applies on restart** — set in `Move.Awake`, so live edits wait for the next save load |
+| `Movement.RunSpeedMultiplier` | `1.0` | The game derives ground acceleration from run÷walk, so scale both together to keep the vanilla feel. **Applies on restart** |
 | `Crafting.SkipMinigame` | `false` | Crafts instantly on recipe selection; ingredients still required and consumed |
 | `ItemMagnet.Radius` | `0.0` | Metres. `0` disables |
 | `ItemMagnet.IntervalSeconds` | `0.2` | Scan cadence |
